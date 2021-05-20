@@ -4,45 +4,48 @@
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; la red social tiene la siguiente forma
-;( ID_UltimaPublicacion(entero) (lista de publicaciones)  ID_UltimaRespuesta(entero) (lista de respuestas) (lista de Usuarios) )
+;( NombreRS(string) fecha(string) funcionEncriptar  funcionDesencriptar ID_UltimaPublicacion(entero) (lista de publicaciones)  ID_UltimaRespuesta(entero) (lista de respuestas) (lista de Usuarios) )
+;donde los primeros dos parametros son correspondientes de la red social
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 ;tda red social
 
 ;constructores
-(define (CrearRSvacia)
-  (CrearStack 0 (list) 0 (list) (list) );esto crea una red social vacia
+(define socialnetwork(lambda (name date encryptFunction decryptFunction)
+                        (if (and (string? name) (equal? date ""));verifico que la fecha sea valida 
+                            #f;si no es valida retorno F
+                            (list name date encryptFunction decryptFunction 0 (list) 0 (list) (list) );si es valida creo la RS
+                            )
+                        )
   )
-;esta funcion crea  con los parametros ingresados
-(define (CrearRS ID_ultimaPublicacion publicaciones ID_UltimaRespuesta respuestas usuarios)
-  (list ID_ultimaPublicacion publicaciones ID_UltimaRespuesta respuestas usuarios);
-  );cierre define
 
 ;selectores
+;NombreRS(string)    
+(define (getNombreRS RS)
+  (car RS);entrego el nombre de la rs
+  )
+;;
+;fecha(string) /como esta fecha solo representa la fecha de creacion de la RS no creare un selector
+;funcionEncriptar /para las funciones de enciptar y desencriptar tampoco creare un selector
+;funcionDesencriptar
+;;
+; ID_UltimaPublicacion(entero)
 (define (ID_UltimaPregunta->RS RS)
-  (car RS);el id de la ultima pregunta es el primer elemento de la RS
+  (car (cdr (cdr (cdr RS))))
   )
+;(lista de publicaciones)
 (define (getPreguntas->RS RS)
-  (car (cdr RS));ya que las preguntas estan en la segunda posicion
+  (car (cdr (cdr (cdr (cdr RS)))))
   )
+; ID_UltimaRespuesta(entero)
 (define (ID_UltimaRespuesta->RS RS)
-  (car(cddr RS));el id de la ultima pregunta es el tercer elemento
+  (car (cdr (cdr (cdr (cdr (cdr RS))))))
   )
-(define (getRespuestas->RSRS)
-  (car(cdddr RS));las respuestas(replicas a publicaciones) estan en la 4ta posicion
+; (lista de respuestas) 
+(define (getRespuestas->RS RS)
+  (car (cdr (cdr (cdr (cdr (cdr (cdr RS)))))))
   )
+ ;(lista de Usuarios)
 (define (getUSUARIOS->RS RS)
- (car(cddddr RS));el usuario es la 5ta posicion
+  (car (cdr (cdr (cdr (cdr (cdr (cdr (cdr RS))))))))
   )
 ;;;;;;;;;;;;;;;;;;;;;
-
-;modificadores AUN FALTA DEFINIR VARIOS MODIFICADORES PERO ESTE ES EL FORMATO STANDAR X AHORA
-;esta funcion modifica un parametro
-(define (setParametro->RS RS modiciar)
-  (CrearRS
-   (ID_UltimaPregunta->stack stack)
-   (getPreguntas->stack stack)
-   (ID_UltimaRespuesta->stack stack)
-   (getRespuestas->stack stack)
-   (getUSUARIOS->stack stack)
-   );esto crea una RS practicamente igual a la que entra como parametro solo que modifica un parametro
-  );cierre define
