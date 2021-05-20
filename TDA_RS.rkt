@@ -23,29 +23,36 @@
 (define (getNombreRS RS)
   (car RS);entrego el nombre de la rs
   )
-;;
-;fecha(string) /como esta fecha solo representa la fecha de creacion de la RS no creare un selector
-;funcionEncriptar /para las funciones de enciptar y desencriptar tampoco creare un selector
+;fecha(string) 
+(define (getFechaRS RS)
+  (car (cdr RS))
+  )
+;funcionEncriptar
+(define (getEncriptar RS)
+  (car (cdr (cdr RS)))
+  )
 ;funcionDesencriptar
-;;
+(define (getDesencript RS)
+  (car (cdr (cdr (cdr RS))))
+  )
 ; ID_UltimaPublicacion(entero)
 (define (ID_UltimaPregunta->RS RS)
-  (car (cdr (cdr (cdr RS))))
+  (car (cdr (cdr (cdr (cdr RS)))))
   )
 ;(lista de publicaciones)
 (define (getPreguntas->RS RS)
-  (car (cdr (cdr (cdr (cdr RS)))))
+  (car (cdr (cdr (cdr (cdr (cdr RS))))))
   )
 ; ID_UltimaRespuesta(entero)
 (define (ID_UltimaRespuesta->RS RS)
-  (car (cdr (cdr (cdr (cdr (cdr RS))))))
+  (car (cdr (cdr (cdr (cdr (cdr (cdr RS)))))))
   )
 ; (lista de respuestas) 
 (define (getRespuestas->RS RS)
-  (car (cdr (cdr (cdr (cdr (cdr (cdr RS)))))))
+  (car (cdr (cdr (cdr (cdr (cdr (cdr (cdr RS))))))))
   )
  ;(lista de Usuarios)
 (define (getUSUARIOS->RS RS)
-  (car (cdr (cdr (cdr (cdr (cdr (cdr (cdr RS))))))))
+  (car (cdr (cdr (cdr (cdr (cdr (cdr (cdr (cdr RS)))))))))
   )
 ;;;;;;;;;;;;;;;;;;;;;
