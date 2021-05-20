@@ -10,14 +10,27 @@
 ;tda red social
 
 ;constructores
+
+;
 (define socialnetwork(lambda (name date encryptFunction decryptFunction)
                         (if (and (string? name) (equal? date ""));verifico que la fecha sea valida 
                             #f;si no es valida retorno F
-                            (list name date encryptFunction decryptFunction 0 (list) 0 (list) (list) );si es valida creo la RS
+                            (construirRS name date encryptFunction decryptFunction 0 (list) 0 (list) (list) );si es valida creo la RS desde 0
                             )
                         )
   )
-
+;este constructor es de apoyo
+;ya que el constructor solicitado como socialnetwork no es suficiente 
+(define construirRS(lambda (name date encryptFunction decryptFunction ID_UltimaPublicacion ListaPublicaciones ID_ultimaRespuesta ListaResp Lista_usarios)
+                     (list name date encryptFunction decryptFunction ID_UltimaPublicacion ListaPublicaciones ID_ultimaRespuesta ListaResp Lista_usarios)
+                     )
+  )
+;funcion para encriptar y desencriptar
+(define Seguridad(lambda (s)
+                    (list->string (reverse (string->list s)))
+                    )
+  )
+;
 ;selectores
 ;NombreRS(string)    
 (define (getNombreRS RS)
