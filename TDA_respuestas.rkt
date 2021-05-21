@@ -29,22 +29,22 @@
 ;selectores del TDA respuesta
 ;(list ID_respuesta autor "respuesta" "fecha respuesta" "si/no" votosPos votosNeg)
 (define (getID_Respuesta respuesta)
-  (car respuesta);la id de una respuesta es el 1er elemento de la lista pregunta
+  (car respuesta)
   )
 (define (getAutor_Respuesta respuesta)
-  (car (cdr respuesta));el autor es el 2do elemento de la lista pregunta
+  (car (cdr respuesta))
   )
 (define (getRespuesta_Respuesta respuesta)
-  (car (cddr respuesta));la respuesta es el 3er elemento de la lista pregunta
+  (car (cddr respuesta))
   )
 (define (getFormato_Respuesta respuesta)
-  (car (cdddr respuesta));la fecha es el 4to elemento de la lista pregunta
+  (car (cdddr respuesta))
   )
 (define (getLikes_Respuesta respuesta)
-  (car (cdddr (cdr respuesta)));el estado es el 5to elemento de la lista pregunta
+  (car (cdddr (cdr respuesta)))
   )
 (define (getFecha_Respuesta respuesta)
-  (car (cdddr (cddr respuesta)));la lista de etiquetas es el 6to elemento de la lista pregunta
+  (car (cdddr (cddr respuesta)))
   )
 ;;;;;;;;;;
 
