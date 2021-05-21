@@ -14,6 +14,10 @@
     )
   )
 ;;;;;;;;;;;;;
+
+(define Seguridad(lambda (s) (list->string (reverse (string->list s)))))
+
+;;;;;;;;;;;;;
 ;;Funcion Register
 ;DOM socialnetwork X date X string X string
 ;REC socialnetwork
@@ -35,7 +39,7 @@
            (getPreguntas->RS RS)
            (ID_UltimaRespuesta->RS RS)
            (getRespuestas->RS RS)
-           (unir (getUSUARIOS->RS RS) (encriptarUser RS (crearUser User pass (list) fecha) ))
+           (unir (getUSUARIOS->RS RS) (seguridadUser(getEncriptar RS) (crearUser User pass (list) fecha) ));aqui encripto
            )
           );cierre if interior
        );cierre if exterior

@@ -68,4 +68,14 @@
            )
        )
   )
-
+;
+;esta funcion sirve para encriptar/desencriptar un tda usuario
+(define seguridadUser (lambda (funcion user)
+                        (list
+                         (funcion  (getNick user));encripto el nick
+                         (funcion  (getPass user));encripto la pass
+                         (getPublicaciones user)
+                         (getFechaRegistro user)
+                         )         
+                        )
+  )
