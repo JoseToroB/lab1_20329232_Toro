@@ -25,11 +25,8 @@
                      (list name date encryptFunction decryptFunction ID_UltimaPublicacion ListaPublicaciones ID_ultimaRespuesta ListaResp Lista_usarios)
                      )
   )
-;funcion para encriptar y desencriptar
-(define Seguridad(lambda (s)
-                    (list->string (reverse (string->list s)))
-                    )
-  )
+
+
 ;
 ;selectores
 ;NombreRS(string)    

@@ -1,8 +1,5 @@
 #lang scheme
 ;
-(require "TDA_RS.rkt")
-(require "TDA_User.rkt")
-;importo TDA_USER ya que utilizo funciones que estan almacenadas en el tda de usuarios 
 (provide (all-defined-out))
 ;
 

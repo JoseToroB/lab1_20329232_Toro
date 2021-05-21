@@ -18,24 +18,10 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;funcion para buscar un elemento "usuario" dentro de una lista "lista de usuarios"
-;dom: string X lista
-;rec: lista
-;utiliza recursion
-(define (buscarUserPass buscado lista)
-   (if (null? lista)
-       #f
-       (if (equal? (car (car lista)) buscado)
-           (car lista)
-           (buscarUserPass buscado (cdr lista))
-           )
-       )
-  )
-
 
 ;Selectores
 
-;funcion getUsuario->lista
+;funcion getNick
 ;dom; lista
 ;rec: string
 ;dada una lista"usuario" entrega el primer valor "nickname"
@@ -43,7 +29,7 @@
                             (car lista)
                     )
   )
-;funcion getPass->lista
+;funcion getPass
 ;dom; lista
 ;rec: string
 ;dada una lista"usuario" entrega el valor "pass"
@@ -51,7 +37,7 @@
                             (car(cdr lista))
                     )
   )
-;funcion getListaPreguntas->lista
+;funcion getPublicaciones
 ;dom; lista
 ;rec: string
 ;dada una lista"usuario" entrega la lista de publicaciones
@@ -59,7 +45,7 @@
                             (car(cddr lista))
                     )
   )
-;funcion getFechaRegistro->lista
+;funcion getFechaRegistro
 ;dom; lista
 ;rec: string
 ;dada una lista"usuario" entrega el valor "fecha registro"
@@ -67,3 +53,19 @@
                             (car(cdddr lista))
                     )
   )
+;;;;;;;;; funciones extra ;;;;;;;
+
+;;funcion para buscar un elemento "usuario" dentro de una lista "lista de usuarios"
+;dom: string X lista
+;rec: lista
+;utiliza recursion
+(define (buscarUserPass buscado lista)
+   (if (null? lista)
+       #f
+       (if (equal? (car(car lista)) buscado)
+           (car lista)
+           (buscarUserPass buscado (cdr lista))
+           )
+       )
+  )
+

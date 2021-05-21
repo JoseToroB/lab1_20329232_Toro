@@ -1,10 +1,7 @@
 #lang scheme
 ;
-(require "TDA_RS.rkt")
-(require "TDA_User.rkt")
 (provide (all-defined-out))
 ;
-;importo el tda user ya que ahi se encuentran las funciones unir y remover
 ;TDA RESPUESTAS
 ;(define RespuestaStandar (list ID(number) autor(string) respuesta(string)  formatoResp(string) likes(number) fecha(string))
 
