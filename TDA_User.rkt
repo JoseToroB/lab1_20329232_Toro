@@ -4,14 +4,14 @@
 ;
 ;TDA USUARIO
 ;el TDA usuario tiene los siguientes elementos
-;(nickname(string) password(string) publicaciones(LISTA DE  IDS/ENTEROS) fechaRegistro(string)
+;(nickname(string) password(string) publicaciones(LISTA DE  IDS/ENTEROS) fechaRegistro(string) IDUser(number) listaAmigos(ids)
 
 ;;Funcion crearUser
 ;DOM ;string X string 
 ;REC ;TDA usuario
-(define (crearUser User pass publicaciones fecha)
-  (if (and (string? User) (or(string? pass)(number? pass)) (list? publicaciones) (string? fecha))
-      (list User pass publicaciones fecha)
+(define (crearUser User pass publicaciones fecha ID listaAmigos)
+  (if (and (string? User) (string? pass) (list? publicaciones) (string? fecha) (number? ID)(list? listaAmigos) )
+      (list User pass publicaciones fecha ID listaAmigos)
       #f
       )
   )
@@ -53,12 +53,25 @@
                             (car(cdddr lista))
                     )
   )
+;funcion getIDUser
+;dom; lista
+;rec: number
+(define getIDUser(lambda (lista)
+                            (car(cddddr lista))
+                    )
+  )
+;funcion getAmigos
+;dom; lista
+;rec: lista
+(define getAmigos(lambda (lista)
+                            (car(cddddr (cdr lista)))
+                    )
+  )
 ;;;;;;;;; funciones extra ;;;;;;;
 
-;;funcion para buscar un elemento "usuario" dentro de una lista "lista de usuarios"
-;dom: string X lista
-;rec: lista
-;utiliza recursion
+;busco un user dentro de una lista users
+;dom: string X lista(de users)
+;rec: lista(user)
 (define (buscarUserPass buscado lista)
    (if (null? lista)
        #f
@@ -74,8 +87,45 @@
                         (list
                          (funcion  (getNick user));encripto el nick
                          (funcion  (getPass user));encripto la pass
-                         (getPublicaciones user)
+                         (getPublicaciones user);no encripto el resto
                          (getFechaRegistro user)
+                         (getIDUser user)
+                         (getAmigos user)
                          )         
                         )
+  )
+
+;busca la posicion de un usuario (mediante el nick) dentro de una lista de users
+;dom: lista x string x entero
+;rec: entero
+(define obtenerPosUser(lambda (lista user pos)
+                   (if (equal? (getNick (car lista)) user)
+                       pos
+                       (obtenerPosUser (cdr lista) user (+ pos 1))
+                       )
+                    )
+  )
+;revisa si un id esta en una lista
+;dom ID(entero) X lista
+;rec bool
+;utiliza recursion
+(define (estaEn? ID lista)
+  (if (null? lista)
+      #f;si la lista esta vacia retorno un false
+      (if(equal? ID (car lista));si el primer elemento de la lista es la ID retorno #t
+         #t
+         (estaEn? ID (cdr lista));sino llamo a la funcion con el (cdr lista)
+         )
+       )
+  )
+;funcion que me retorna #t o #f para saber si una lista de usuarios pertenece a los amigos de otro
+(define sonAmigos(lambda (ListaUsers supuestosAmigos user)
+                   (if (equal? supuestosAmigos null);si no hay mas o si esta vacia #t
+                       #t
+                       (if(estaEn? (getIDUser(buscarUserPass (car supuestosAmigos) ListaUsers) (getAmigos(buscarUserPass user ListaUsers) ) ))
+                          (sonAmigos ListaUsers (cdr supuestosAmigos) user);si el actual es amigo, reviso el siguiente
+                          #f;si el actual no es amigo, retorno f
+                        )
+                   )
+                   )
   )

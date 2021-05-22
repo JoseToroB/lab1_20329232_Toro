@@ -5,13 +5,13 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;aqui empieza el TDA Publicacion
-;id(int) , contenidoCompartido(string) ,tipoDato(string), fecha (string), lista de ids(de respuestas), reacciones("likes" int),Publicador(nick string)
+;id(int) , contenidoCompartido(string) ,tipoDato(string), fecha (string), lista de ids(de respuestas), reacciones("likes" int),Publicador(nick string), etiquetados(strings)
 ;constructor
 ;entran varios datos
 ;sale una lista del tipo del TDA si esque los datos son validos
-(define crearPublicacion(lambda(id contenidoCompartido tipoDato fecha ListaRespuestas likes autor)
+(define crearPublicacion(lambda(id contenidoCompartido tipoDato fecha ListaRespuestas likes autor etiquetados)
                           (if (esPublicacion id contenidoCompartido tipoDato fecha ListaRespuestas likes autor)
-                              (list id contenidoCompartido tipoDato fecha ListaRespuestas likes autor)
+                              (list id contenidoCompartido tipoDato fecha ListaRespuestas likes autor etiquetados)
                               #f
                               )
                           ))
@@ -54,6 +54,10 @@
   )
 (define getAutorPublicacion(lambda (publicacion)
                           (car(cdr(cdr(cdr(cdr(cdr(cdr publicacion)))))))
+                          )
+  )
+(define getEtiquetados(lambda (publicacion)
+                          (car(cdr(cdr(cdr(cdr(cdr(cdr (cdr publicacion))))))))
                           )
   )
 ;

@@ -4,7 +4,7 @@
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; la red social tiene la siguiente forma
-;( NombreRS(string) fecha(string) funcionEncriptar  funcionDesencriptar ID_UltimaPublicacion(entero) (lista de publicaciones)  ID_UltimaRespuesta(entero) (lista de respuestas) (lista de Usuarios) userOn(string nick) )
+;( NombreRS(string) fecha(string) funcionEncriptar  funcionDesencriptar ID_UltimaPublicacion(entero) (lista de publicaciones)  ID_UltimaRespuesta(entero) (lista de respuestas) (lista de Usuarios) userOn(string nick) cantidadUsers(number) )
 ;donde los primeros dos parametros son correspondientes de la red social
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 ;tda red social
@@ -15,14 +15,13 @@
 (define socialnetwork(lambda (name date encryptFunction decryptFunction)
                         (if (and (string? name) (equal? date ""));verifico que la fecha sea valida 
                             #f;si no es valida retorno F
-                            (construirRS name date encryptFunction decryptFunction 0 (list) 0 (list) (list) "" );si es valida creo la RS desde 0
+                            (construirRS name date encryptFunction decryptFunction 0 (list) 0 (list) (list) "" 0);si es valida creo la RS desde 0
                             )
                         )
   )
-;este constructor es de apoyo
-;ya que el constructor solicitado como socialnetwork no es suficiente 
-(define construirRS(lambda (name date encryptFunction decryptFunction ID_UltimaPublicacion ListaPublicaciones ID_ultimaRespuesta ListaResp Lista_usarios online)
-                     (list name date encryptFunction decryptFunction ID_UltimaPublicacion ListaPublicaciones ID_ultimaRespuesta ListaResp Lista_usarios online)
+;este constructor es solo conocido por el programador por ende es un constructor de apoyo utilizado en socialnetwork
+(define construirRS(lambda (name date encryptFunction decryptFunction ID_UltimaPublicacion ListaPublicaciones ID_ultimaRespuesta ListaResp Lista_usarios online CantUsers)
+                     (list name date encryptFunction decryptFunction ID_UltimaPublicacion ListaPublicaciones ID_ultimaRespuesta ListaResp Lista_usarios online CantUsers)
                      )
   )
 
@@ -68,5 +67,9 @@
 ;userON
 (define (getOnline->RS RS)
   (car (cdr (cdr (cdr (cdr (cdr (cdr (cdr (cdr (cdr RS))))))))))
+  )
+;cantUsers
+(define (getCantUsers->RS RS)
+  (car (cdr (cdr (cdr (cdr (cdr (cdr (cdr (cdr (cdr (cdr RS)))))))))))
   )
 ;;;;;;;;;;;;;;;;;;;;;

@@ -5,7 +5,10 @@
 (require "TDA_User.rkt")
 (require "TDA_Publicacion.rkt")
 
-;;;;;;;;;;;;;;;;;;;;;;;
+;;funciones para el trabajo con listas;;;;;;;
+;similar al append
+;dom lista x lista
+;rec lista
 (define unir(lambda (x y)
     (if (null? x);si la primera lista esta vacia retorno el segundo 
         (list y)
@@ -13,23 +16,33 @@
         )
     )
   )
+;funcion remover remueve el elemento que ocupe la posicion "pos" de la lista 
+;dom: lista X numb
+;rec: lista
+(define remover(lambda (lista pos)
+                 (if (and (= pos 0) (null? lista))
+                     (list)
+                     (if (= pos 0)
+                         (cdr lista)
+                         (cons (car lista) (remover (cdr lista) (- pos 1)))
+                         )
+                     )
+                 )
+  )
 ;;;;;;;;;;;;;
 ;esta funcion es la que utilizo para encriptar y desencriptar en mis testeos
 (define Seguridad(lambda (s) (list->string (reverse (string->list s)))))
 
 ;;;;;;;;;;;;;
-;;Funcion Register
+;Register
 ;DOM socialnetwork X date X string X string
 ;REC socialnetwork
-;utiliza recursion en la funcion buscarUserPass
-;esta funcion registra un usuario agregandolo a la lista USUARIOS dentro del stack
-;si el usuario ya se encuentra registrado se retorna un mensaje de que ya esta registrado
-;en caso de entregar un stack sin fecha se muestra un mensaje de esto
 (define (Register RS fecha User pass)
-  (if (equal? User (buscarUserPass User (getUSUARIOS->RS RS)))
-      (display "Usuario ya Registrado")
+  (if (and(equal? User (buscarUserPass User (getUSUARIOS->RS RS))) (not(equal? User "")));no permito la existencia del usario "" ya que es como represento una sesion inactiva
+      RS;Usuario ya Registrado o Nombre invalido
       (if (equal? "" (getFechaRS RS))
-          (display "se ha entregado una RS sin fecha\n")
+          RS; RS sin fecha
+          ;   Lista_usarios online CantUsers
           (construirRS
            (getNombreRS RS)
            (getFechaRS RS)
@@ -39,16 +52,18 @@
            (getPreguntas->RS RS)
            (ID_UltimaRespuesta->RS RS)
            (getRespuestas->RS RS)
-           (unir (getUSUARIOS->RS RS) (seguridadUser(getEncriptar RS) (crearUser User pass (list) fecha) ));aqui encripto
-           "" )
+           (unir (getUSUARIOS->RS RS) (seguridadUser(getEncriptar RS) (crearUser User pass (list) fecha (+(getCantUsers->RS RS) 1) (list) ) ));aqui encripto
+           ""
+           (+(getCantUsers->RS RS)1)
+           )
           );cierre if interior
        );cierre if exterior
   );cierre define
 
 ;;;;;;;;;;;;;
-;funcion para loguearse
-;dom socialnetwork X string X string X function 
-;rec function, rec final socialnetwork
+;login
+;dom: socialnetwork X string X string X function 
+;rec: function, rec final socialnetwork
 
 (define Login 
   (lambda (RS User Pass function)
@@ -67,11 +82,73 @@
            (ID_UltimaRespuesta->RS RS)
            (getRespuestas->RS RS)
            (getUSUARIOS->RS RS)
-           User )
+           User
+           (getCantUsers->RS RS))
                  )
         ;usuario no logeado
         RS ;retorno la Rs
         )
     );cierre lambda
   );cierre define
-  
+
+;;;;;;
+;post
+;dom: socialnetwork
+;rec function: date X string (contenido) X user list
+;rec final: socialnetwork
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;ya que no se especifica que tipo de publicacion asumire que todas son tipo texto;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(define (post RS)(lambda (fechaPublicacion)
+                   (lambda (contenido . users)
+                     ;debo revisar si "etiqueto" gente
+                     (if (or(null? users) (sonAmigos (getUSUARIOS->RS RS) users ((getEncriptar RS)(getOnline->RS RS))))
+                         ;no etiqueto o son amigos
+                         (construirRS;crear una RS identica con ciertas partes modificadas
+                          (getNombreRS RS)
+                          (getFechaRS RS)
+                          (getEncriptar RS)
+                          (getDesencript RS)
+                          ;actualizo IDUltimoPregunta sumandole 1
+                          (+(ID_UltimaPregunta->RS RS)1)
+                          ;actualizo la lista de preguntas agregando la publicacion
+                          (unir
+                           (getPreguntas->RS RS);lista preguntas/publicaciones/posteos
+                           ;debo encriptar la publicacion 
+                           (crearPublicacion;creo publicacion
+                            (+(ID_UltimaPregunta->RS RS)1);asigno id
+                            contenido
+                            "texto";asumo es texto ya que en ninguna parte del llamado se permite saber el dato
+                            fechaPublicacion
+                            (list);lista respuestas/comentarios
+                            0;likes
+                            (getOnline->RS RS);asigno el autor para lograr identificarlas mas facil
+                            users;asigno sus "etiquetados"
+                            ))
+                          (ID_UltimaRespuesta->RS RS)
+                          (getRespuestas->RS RS)
+                          ;actualizo al usuario que publico
+                          (unir
+                           (remover (getUSUARIOS->RS RS) (obtenerPosUser (getUSUARIOS->RS RS) ((getEncriptar RS)(getOnline->RS RS)) 0) );elimino al usuario
+                                 (crearUser;(list "removiuser" "fecha") ;creo al usuario que removi, pero agregando la pregunta/post(solo la id) a su lista de posts
+                                  ((getEncriptar RS)(getOnline->RS RS))
+                                  (getPass (buscarUserPass ((getEncriptar RS)(getOnline->RS RS)) (getUSUARIOS->RS RS)))
+                                  ;agrego la publicacion realizada(solo la id)
+                                  (unir (getPublicaciones (buscarUserPass ((getEncriptar RS)(getOnline->RS RS)) (getUSUARIOS->RS RS)))  (+(ID_UltimaPregunta->RS RS)1))
+                                  (getFechaRegistro(buscarUserPass ((getEncriptar RS)(getOnline->RS RS)) (getUSUARIOS->RS RS)))
+                                  (getIDUser(buscarUserPass ((getEncriptar RS)(getOnline->RS RS)) (getUSUARIOS->RS RS)))
+                                  (getAmigos(buscarUserPass ((getEncriptar RS)(getOnline->RS RS)) (getUSUARIOS->RS RS)))
+                                   )
+                                   )
+                           
+                          "";desconecto el usuario
+                          (getCantUsers->RS RS))
+                         ;no son amigos por ende retorno la RS sin publicacion
+                         RS; " Solo se puede publicar mensajes en cuentas de terceros si es que está dentro de la lista de contactos del usuario "
+                         ;por ende si no son amigos no se puede crear la publicacion
+                         )
+                     )
+                   )
+                   
+  ) 
+                  
