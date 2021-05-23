@@ -102,7 +102,7 @@
 (define (post RS)(lambda (fechaPublicacion)
                    (lambda (contenido . users)
                      ;debo revisar si "etiqueto" gente
-                     (if (or(null? users) (sonAmigos (getUSUARIOS->RS RS) users ((getEncriptar RS)(getOnline->RS RS))))
+                     (if (or(null? users) (sonAmigos (getUSUARIOS->RS RS) (car users) ((getEncriptar RS)(getOnline->RS RS))))
                          ;no etiqueto o son amigos
                          (construirRS;crear una RS identica con ciertas partes modificadas
                           (getNombreRS RS)
@@ -114,10 +114,10 @@
                           ;actualizo la lista de preguntas agregando la publicacion
                           (unir
                            (getPreguntas->RS RS);lista preguntas/publicaciones/posteos
-                           ;debo encriptar la publicacion 
+                           ;debo encriptar la publicacion
                            (crearPublicacion;creo publicacion
                             (+(ID_UltimaPregunta->RS RS)1);asigno id
-                            contenido
+                           ( (getEncriptar RS) contenido) ;encripto el contenido
                             "texto";asumo es texto ya que en ninguna parte del llamado se permite saber el dato
                             fechaPublicacion
                             (list);lista respuestas/comentarios
@@ -150,5 +150,54 @@
                      )
                    )
                    
-  ) 
-                  
+  )
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;COMO NO SE INDICA NINGUNA FUNCION PARA RELACIONAR DOS USUARIOS ENTRE SI (HACERLOS "AMIGOS");;;;;;;;;
+;ASUMIRE QUE LA FUNCION FOLLOW SE ENCARGA DE ESTO YA QUE DE OTRA FORMA LA FUNCION POST JAMAS PODRIA;;
+;UTILIZARSE "ETIQUETANDO" A TERCEROS.;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;FOLLOW
+;DOM socialnetwork
+;REC function: date X user
+;REC FINAL socialnetwork
+;por como se realiza el llamado de ejemplo esta 2blemente currificada
+;( ( (login facebook “user” “pass” follow) (date 30 10 2020) ) “user1”) ;
+
+(define (follow RS)(lambda(fecha)(lambda (userAseguir)
+                                   (if (not(equal? (getOnline->RS RS) userAseguir));online!=userAseguir
+                                    (if (not;reviso que la persona a seguir no sea ya seguida por el usuario conectado
+                                         (estaEn?;reviso si la id esta en la lista
+                                          (getIDUser(buscarUserPass ((getEncriptar RS)userAseguir) (getUSUARIOS->RS RS)));id user a seguir
+                                          (getAmigos(buscarUserPass ((getEncriptar RS)(getOnline->RS RS)) (getUSUARIOS->RS RS)))));lista user online
+                                        ;se puede seguir
+                                         (construirRS;crear una RS identica con ciertas partes modificadas
+                                          (getNombreRS RS)
+                                          (getFechaRS RS)
+                                          (getEncriptar RS)
+                                          (getDesencript RS)
+                                          (ID_UltimaPregunta->RS RS)
+                                          (getPreguntas->RS RS)
+                                          (ID_UltimaRespuesta->RS RS)
+                                          (getRespuestas->RS RS)
+                                          ;debo "modificar" al usuario online, para eso lo remuevo y lo agrego con sus nuevos valores
+                                          (unir (remover (getUSUARIOS->RS RS) (obtenerPosUser (getUSUARIOS->RS RS) ((getEncriptar RS)(getOnline->RS RS)) 0) )
+                                                (crearUser;(list "removiuser" "fecha") ;creo al usuario que removi, pero agregando la pregunta/post(solo la id) a su lista de posts
+                                                 ((getEncriptar RS)(getOnline->RS RS))
+                                                 (getPass (buscarUserPass ((getEncriptar RS)(getOnline->RS RS)) (getUSUARIOS->RS RS)))
+                                                 (getPublicaciones (buscarUserPass ((getEncriptar RS)(getOnline->RS RS)) (getUSUARIOS->RS RS))) 
+                                                 (getFechaRegistro(buscarUserPass ((getEncriptar RS)(getOnline->RS RS)) (getUSUARIOS->RS RS)))
+                                                 (getIDUser(buscarUserPass ((getEncriptar RS)(getOnline->RS RS)) (getUSUARIOS->RS RS)))
+                                                 ;ahora agrego la id del usuario a seguir a su lista de seguidos
+                                                 (unir (getAmigos(buscarUserPass ((getEncriptar RS)(getOnline->RS RS)) (getUSUARIOS->RS RS))) (getIDUser (buscarUserPass ((getEncriptar RS)userAseguir) (getUSUARIOS->RS RS))))
+                                                 ))
+                                          "";desconecto el usuario
+                                          (getCantUsers->RS RS))
+                                        ;ya se sigue al user
+                                        RS
+                                        )
+                                    ;auto follow 
+                                    RS
+                                    )
+                                  )
+                    )
+                )
