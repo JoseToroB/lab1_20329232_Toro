@@ -119,11 +119,11 @@
        )
   )
 ;funcion que me retorna #t o #f para saber si una lista de usuarios pertenece a los amigos de otro
-(define sonAmigos(lambda (ListaUsers supuestosAmigos user)
+(define sonAmigos(lambda (ListaUsers supuestosAmigos user formato)
                    (if (equal? supuestosAmigos null);si no hay mas o si esta vacia #t
                        #t
-                       (if(estaEn? (getIDUser(buscarUserPass (car supuestosAmigos) ListaUsers) (getAmigos(buscarUserPass user ListaUsers) ) ))
-                          (sonAmigos ListaUsers (cdr supuestosAmigos) user);si el actual es amigo, reviso el siguiente
+                       (if(estaEn? (getIDUser(buscarUserPass (formato(car supuestosAmigos)) ListaUsers)) (getAmigos(buscarUserPass user ListaUsers) ) )
+                          (sonAmigos ListaUsers (cdr supuestosAmigos) user formato);si el actual es amigo, reviso el siguiente
                           #f;si el actual no es amigo, retorno f
                         )
                    )

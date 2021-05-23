@@ -102,8 +102,8 @@
 (define (post RS)(lambda (fechaPublicacion)
                    (lambda (contenido . users)
                      ;debo revisar si "etiqueto" gente
-                     (if (or(null? users) (sonAmigos (getUSUARIOS->RS RS) (car users) ((getEncriptar RS)(getOnline->RS RS))))
-                         ;no etiqueto o son amigos
+                    (if (or(null? users) (sonAmigos (getUSUARIOS->RS RS) users ((getEncriptar RS)(getOnline->RS RS)) (getEncriptar RS) ) )
+                         ;no etiqueto o son amigos 
                          (construirRS;crear una RS identica con ciertas partes modificadas
                           (getNombreRS RS)
                           (getFechaRS RS)
@@ -180,16 +180,35 @@
                                           (ID_UltimaRespuesta->RS RS)
                                           (getRespuestas->RS RS)
                                           ;debo "modificar" al usuario online, para eso lo remuevo y lo agrego con sus nuevos valores
-                                          (unir (remover (getUSUARIOS->RS RS) (obtenerPosUser (getUSUARIOS->RS RS) ((getEncriptar RS)(getOnline->RS RS)) 0) )
-                                                (crearUser;(list "removiuser" "fecha") ;creo al usuario que removi, pero agregando la pregunta/post(solo la id) a su lista de posts
-                                                 ((getEncriptar RS)(getOnline->RS RS))
-                                                 (getPass (buscarUserPass ((getEncriptar RS)(getOnline->RS RS)) (getUSUARIOS->RS RS)))
-                                                 (getPublicaciones (buscarUserPass ((getEncriptar RS)(getOnline->RS RS)) (getUSUARIOS->RS RS))) 
-                                                 (getFechaRegistro(buscarUserPass ((getEncriptar RS)(getOnline->RS RS)) (getUSUARIOS->RS RS)))
-                                                 (getIDUser(buscarUserPass ((getEncriptar RS)(getOnline->RS RS)) (getUSUARIOS->RS RS)))
-                                                 ;ahora agrego la id del usuario a seguir a su lista de seguidos
-                                                 (unir (getAmigos(buscarUserPass ((getEncriptar RS)(getOnline->RS RS)) (getUSUARIOS->RS RS))) (getIDUser (buscarUserPass ((getEncriptar RS)userAseguir) (getUSUARIOS->RS RS))))
-                                                 ))
+                                          ;tambien debo hacer esto con el userAseguir, agregando la id del user online como un contacto
+                                          (unir
+                                           (unir
+                                            (remover
+                                             (remover (getUSUARIOS->RS RS) (obtenerPosUser (getUSUARIOS->RS RS) ((getEncriptar RS)(getOnline->RS RS)) 0) );remuevo online
+                                             (obtenerPosUser (remover (getUSUARIOS->RS RS) (obtenerPosUser (getUSUARIOS->RS RS) ((getEncriptar RS)(getOnline->RS RS)) 0) )
+                                              ((getEncriptar RS)userAseguir) 0)
+                                             )   
+                                            ;removidos los dos usuarios
+                                             (crearUser;agrego la id de userAseguir en la lista de ids del user online
+                                              ((getEncriptar RS)(getOnline->RS RS))
+                                              (getPass (buscarUserPass ((getEncriptar RS)(getOnline->RS RS)) (getUSUARIOS->RS RS)))
+                                              (getPublicaciones (buscarUserPass ((getEncriptar RS)(getOnline->RS RS)) (getUSUARIOS->RS RS))) 
+                                              (getFechaRegistro(buscarUserPass ((getEncriptar RS)(getOnline->RS RS)) (getUSUARIOS->RS RS)))
+                                              (getIDUser(buscarUserPass ((getEncriptar RS)(getOnline->RS RS)) (getUSUARIOS->RS RS)))
+                                              ;ahora agrego la id del usuario a seguir a su lista de seguidos
+                                              (unir (getAmigos(buscarUserPass ((getEncriptar RS)(getOnline->RS RS)) (getUSUARIOS->RS RS))) (getIDUser (buscarUserPass ((getEncriptar RS)userAseguir) (getUSUARIOS->RS RS))))
+                                               )) 
+                                                ;aqui agrego al userAseguir modificado
+                                              (crearUser;agrego la id de userAseguir en la lista de ids del user online
+                                              ((getEncriptar RS)userAseguir)
+                                              (getPass (buscarUserPass ((getEncriptar RS)userAseguir) (getUSUARIOS->RS RS)))
+                                              (getPublicaciones (buscarUserPass ((getEncriptar RS)userAseguir) (getUSUARIOS->RS RS))) 
+                                              (getFechaRegistro(buscarUserPass ((getEncriptar RS)userAseguir) (getUSUARIOS->RS RS)))
+                                              (getIDUser(buscarUserPass ((getEncriptar RS)userAseguir) (getUSUARIOS->RS RS)))
+                                              ;ahora agrego la id del usuario a seguir a su lista de seguidos
+                                              (unir (getAmigos(buscarUserPass ((getEncriptar RS)userAseguir) (getUSUARIOS->RS RS))) (getIDUser (buscarUserPass ((getEncriptar RS)(getOnline->RS RS)) (getUSUARIOS->RS RS))))
+                                               ))
+                                                
                                           "";desconecto el usuario
                                           (getCantUsers->RS RS))
                                         ;ya se sigue al user
