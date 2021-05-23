@@ -220,3 +220,17 @@
                                   )
                     )
                 )
+;;;
+;share
+;dom socialnetwork
+;rec function: date X postID X userList
+;rec final socialnetwork 
+;(((login facebook “user” “pass” share) (date 30 10 2020)) 54)  ;la publicación con ID 54 se comparte en la cuenta de user
+(define (share RS)(lambda (fecha)(lambda (IDpubli . users)
+                                   (if (or(null? users) (sonAmigos (getUSUARIOS->RS RS) users ((getEncriptar RS)(getOnline->RS RS)) (getEncriptar RS) ) )
+                                    #t
+                                    #f
+                                    )
+                                   )
+                    )
+  )
