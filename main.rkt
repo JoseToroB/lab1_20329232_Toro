@@ -219,10 +219,46 @@
 ;rec final socialnetwork 
 ;(((login facebook “user” “pass” share) (date 30 10 2020)) 54)  ;la publicación con ID 54 se comparte en la cuenta de user
 (define (share RS)(lambda (fecha)(lambda (IDpubli . users)
-                                   (if (or(null? users) (sonAmigos (getUSUARIOS->RS RS) users ((getEncriptar RS)(getOnline->RS RS)) (getEncriptar RS) ) )
-                                    #t
-                                    #f
-                                    )
+                                   ;reviso que exista la publicacion con esa ID
+                                   (if (list?(buscarPublicacionID  IDpubli (getPreguntas->RS RS)))
+                                       ;si existe la pubicacion
+                                       ;creo una RS con el usuario modificado (agrego la id, fecha , etiquetados dentro de su list  de compartidos)
+                                       (construirRS;crear una RS identica con ciertas partes modificadas
+                                          (getNombreRS RS)
+                                          (getFechaRS RS)
+                                          (getEncriptar RS)
+                                          (getDesencript RS)
+                                          (ID_UltimaPregunta->RS RS)
+                                          (getPreguntas->RS RS)
+                                          (ID_UltimaRespuesta->RS RS)
+                                          (getRespuestas->RS RS)
+                                          ;debo "modificar" al usuario online, para eso lo remuevo y lo agrego con sus nuevos valores
+                                          (unir (remover (getUSUARIOS->RS RS) (obtenerPosUser (getUSUARIOS->RS RS) ((getEncriptar RS)(getOnline->RS RS)) 0) );remuevo online
+                                                (crearUser;agrego la id de userAseguir en la lista de ids del user online
+                                                 ((getEncriptar RS)(getOnline->RS RS))
+                                                 (getPass (buscarUserPass ((getEncriptar RS)(getOnline->RS RS)) (getUSUARIOS->RS RS)))
+                                                 (getPublicaciones (buscarUserPass ((getEncriptar RS)(getOnline->RS RS)) (getUSUARIOS->RS RS))) 
+                                                 (getFechaRegistro(buscarUserPass ((getEncriptar RS)(getOnline->RS RS)) (getUSUARIOS->RS RS)))
+                                                 (getIDUser(buscarUserPass ((getEncriptar RS)(getOnline->RS RS)) (getUSUARIOS->RS RS)))
+                                                 ;ahora agrego la id del usuario a seguir a su lista de seguidos
+                                                 (getAmigos(buscarUserPass ((getEncriptar RS)(getOnline->RS RS)) (getUSUARIOS->RS RS)))
+                                                 (unir (getCompartidos (buscarUserPass ((getEncriptar RS)(getOnline->RS RS)) (getUSUARIOS->RS RS)))
+                                                       (list
+                                                        IDpubli
+                                                        fecha
+                                                        ;reviso que los "etiquetados" sean amigos del user online
+                                                        (if (or(null? users) (sonAmigos (getUSUARIOS->RS RS) users ((getEncriptar RS)(getOnline->RS RS)) (getEncriptar RS) ) )
+                                                            ;si son amigos los agrego
+                                                            users
+                                                            ;si no son amigos lo dejo como ""
+                                                            ""
+                                                            ))
+                                                 ))) 
+                                          "";desconecto el usuario
+                                          (getCantUsers->RS RS))
+                                       ;si no existe retorno la RS
+                                       RS
+                                       )
                                    )
                     )
   )

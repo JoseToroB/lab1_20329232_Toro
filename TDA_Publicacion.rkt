@@ -60,4 +60,16 @@
                           (car(cdr(cdr(cdr(cdr(cdr(cdr (cdr publicacion))))))))
                           )
   )
-;
+;FUNCIONES EXTRA
+;busco una publicacion en la lista de publicaciones 
+;dom: numb(id) x lista
+;rec: lista(publicacion)
+(define (buscarPublicacionID ID lista)
+   (if (null? lista)
+       #f
+       (if (equal? (car(car lista)) ID)
+           (car lista)
+           (buscarPublicacionID  ID (cdr lista))
+           )
+       )
+  )
