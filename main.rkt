@@ -16,6 +16,16 @@
         )
     )
   )
+(define buscar(lambda (lista buscado)
+                (if (null? lista)
+                    #f
+                    (if (equal?(car (car lista)) buscado)
+                        (car lista)
+                        (buscar(cdr lista) buscado)
+                        )
+                    )
+                )
+  )
 ;funcion remover remueve el elemento que ocupe la posicion "pos" de la lista 
 ;dom: lista X numb
 ;rec: lista
@@ -36,7 +46,7 @@
 ;;;;;;;;;;;;;
 ;Register
 ;DOM socialnetwork X date X string X string
-;REC socialnetwork
+;REC socialnetwork            
 (define (Register RS fecha User pass)
   (if (and(equal? User (buscarUserPass User (getUSUARIOS->RS RS))) (not(equal? User "")));no permito la existencia del usario "" ya que es como represento una sesion inactiva
       RS;Usuario ya Registrado o Nombre invalido
@@ -52,7 +62,7 @@
            (getPreguntas->RS RS)
            (ID_UltimaRespuesta->RS RS)
            (getRespuestas->RS RS)
-           (unir (getUSUARIOS->RS RS) (seguridadUser(getEncriptar RS) (crearUser User pass (list) fecha (+(getCantUsers->RS RS) 1) (list) ) ));aqui encripto
+           (unir (getUSUARIOS->RS RS) (seguridadUser(getEncriptar RS) (crearUser User pass (list) fecha (+(getCantUsers->RS RS) 1) (list) (list)) ));aqui encripto
            ""
            (+(getCantUsers->RS RS)1)
            )
@@ -100,7 +110,7 @@
 ;ya que no se especifica que tipo de publicacion asumire que todas son tipo texto;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define (post RS)(lambda (fechaPublicacion)
-                   (lambda (contenido . users)
+                   (lambda (tipoPost contenido . users)
                      ;debo revisar si "etiqueto" gente
                     (if (or(null? users) (sonAmigos (getUSUARIOS->RS RS) users ((getEncriptar RS)(getOnline->RS RS)) (getEncriptar RS) ) )
                          ;no etiqueto o son amigos 
@@ -118,7 +128,7 @@
                            (crearPublicacion;creo publicacion
                             (+(ID_UltimaPregunta->RS RS)1);asigno id
                            ( (getEncriptar RS) contenido) ;encripto el contenido
-                            "texto";asumo es texto ya que en ninguna parte del llamado se permite saber el dato
+                            tipoPost;asumo es texto ya que en ninguna parte del llamado se permite saber el dato
                             fechaPublicacion
                             (list);lista respuestas/comentarios
                             0;likes
@@ -138,7 +148,7 @@
                                   (getFechaRegistro(buscarUserPass ((getEncriptar RS)(getOnline->RS RS)) (getUSUARIOS->RS RS)))
                                   (getIDUser(buscarUserPass ((getEncriptar RS)(getOnline->RS RS)) (getUSUARIOS->RS RS)))
                                   (getAmigos(buscarUserPass ((getEncriptar RS)(getOnline->RS RS)) (getUSUARIOS->RS RS)))
-                                   )
+                                  (getCompartidos(buscarUserPass ((getEncriptar RS)(getOnline->RS RS)) (getUSUARIOS->RS RS))))
                                    )
                            
                           "";desconecto el usuario
@@ -151,11 +161,10 @@
                    )
                    
   )
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;COMO NO SE INDICA NINGUNA FUNCION PARA RELACIONAR DOS USUARIOS ENTRE SI (HACERLOS "AMIGOS");;;;;;;;;
-;ASUMIRE QUE LA FUNCION FOLLOW SE ENCARGA DE ESTO YA QUE DE OTRA FORMA LA FUNCION POST JAMAS PODRIA;;
-;UTILIZARSE "ETIQUETANDO" A TERCEROS.;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;
+;esta funcion es la que permite que dos usuarios se consideren "contactos" es decir es la que permite
+;"etiquetar" a otros usuarios en publicaciones
+;
 ;FOLLOW
 ;DOM socialnetwork
 ;REC function: date X user
@@ -180,16 +189,8 @@
                                           (ID_UltimaRespuesta->RS RS)
                                           (getRespuestas->RS RS)
                                           ;debo "modificar" al usuario online, para eso lo remuevo y lo agrego con sus nuevos valores
-                                          ;tambien debo hacer esto con el userAseguir, agregando la id del user online como un contacto
-                                          (unir
-                                           (unir
-                                            (remover
-                                             (remover (getUSUARIOS->RS RS) (obtenerPosUser (getUSUARIOS->RS RS) ((getEncriptar RS)(getOnline->RS RS)) 0) );remuevo online
-                                             (obtenerPosUser (remover (getUSUARIOS->RS RS) (obtenerPosUser (getUSUARIOS->RS RS) ((getEncriptar RS)(getOnline->RS RS)) 0) )
-                                              ((getEncriptar RS)userAseguir) 0)
-                                             )   
-                                            ;removidos los dos usuarios
-                                             (crearUser;agrego la id de userAseguir en la lista de ids del user online
+                                          (unir (remover (getUSUARIOS->RS RS) (obtenerPosUser (getUSUARIOS->RS RS) ((getEncriptar RS)(getOnline->RS RS)) 0) );remuevo online
+                                                (crearUser;agrego la id de userAseguir en la lista de ids del user online
                                               ((getEncriptar RS)(getOnline->RS RS))
                                               (getPass (buscarUserPass ((getEncriptar RS)(getOnline->RS RS)) (getUSUARIOS->RS RS)))
                                               (getPublicaciones (buscarUserPass ((getEncriptar RS)(getOnline->RS RS)) (getUSUARIOS->RS RS))) 
@@ -197,18 +198,9 @@
                                               (getIDUser(buscarUserPass ((getEncriptar RS)(getOnline->RS RS)) (getUSUARIOS->RS RS)))
                                               ;ahora agrego la id del usuario a seguir a su lista de seguidos
                                               (unir (getAmigos(buscarUserPass ((getEncriptar RS)(getOnline->RS RS)) (getUSUARIOS->RS RS))) (getIDUser (buscarUserPass ((getEncriptar RS)userAseguir) (getUSUARIOS->RS RS))))
-                                               )) 
-                                                ;aqui agrego al userAseguir modificado
-                                              (crearUser;agrego la id de userAseguir en la lista de ids del user online
-                                              ((getEncriptar RS)userAseguir)
-                                              (getPass (buscarUserPass ((getEncriptar RS)userAseguir) (getUSUARIOS->RS RS)))
-                                              (getPublicaciones (buscarUserPass ((getEncriptar RS)userAseguir) (getUSUARIOS->RS RS))) 
-                                              (getFechaRegistro(buscarUserPass ((getEncriptar RS)userAseguir) (getUSUARIOS->RS RS)))
-                                              (getIDUser(buscarUserPass ((getEncriptar RS)userAseguir) (getUSUARIOS->RS RS)))
-                                              ;ahora agrego la id del usuario a seguir a su lista de seguidos
-                                              (unir (getAmigos(buscarUserPass ((getEncriptar RS)userAseguir) (getUSUARIOS->RS RS))) (getIDUser (buscarUserPass ((getEncriptar RS)(getOnline->RS RS)) (getUSUARIOS->RS RS))))
-                                               ))
-                                                
+                                              (getCompartidos (buscarUserPass ((getEncriptar RS)(getOnline->RS RS)) (getUSUARIOS->RS RS)))
+                                              )) 
+                                        
                                           "";desconecto el usuario
                                           (getCantUsers->RS RS))
                                         ;ya se sigue al user
