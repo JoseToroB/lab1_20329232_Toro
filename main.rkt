@@ -262,3 +262,21 @@
                                    )
                     )
   )
+;RS->STRING
+;Dom socialnetwork
+;Rec string
+(define (socialnetwork->string RS)
+  ;hay dos casos, el caso donde existe alguien online y el caso donde no
+  (if (equal? "" (getOnline->RS RS))
+      ;caso ofline
+      #t
+      ;caso online
+      (casoUserOnline RS  (getDesencript RS) (buscarUserPass ((getEncriptar RS)(getOnline->RS RS)) (getUSUARIOS->RS RS)))
+                     
+      )
+  )
+(define casoUserOnline(lambda (RS formato user )
+                        ;como el user esta online debo mostrar solo lo relacionado a el
+                        ""
+                        )
+  )
