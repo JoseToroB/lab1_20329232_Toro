@@ -137,3 +137,12 @@
                    )
                    )
   )
+(define contactoAstring(lambda (contacto formato)
+                         " "
+                         )
+  )
+
+(define ContactosAstring (lambda (user formato listaUsers )
+                           " "
+                           )
+  )

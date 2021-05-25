@@ -73,3 +73,46 @@
            )
        )
   )
+(define etiquetadosAstringPubli(lambda (et)
+                                 (if (null? et)
+                                     ""
+                                     (string-append (car et) (etiquetadosAstringPubli (cdr et)))
+                                     )
+                                  )
+  )
+;transoforma una publicacion a un string
+;publicacionAstring
+;dom list
+;rec string
+;(list id contenidoCompartido tipoDato fecha ListaRespuestas likes autor etiquetados)
+(define publicacionAstring(lambda(publi formato)
+                            (string-append
+                             "ID: "(number->string(getIDPublicacion publi))" "
+                             "Autor: "(getAutorPublicacion publi)" "
+                             "Fecha Publicacion: "(getFechaPublicacion publi)"\n"
+                             "Tipo de Publicacion: " (formato(getTipoDatPublicacion publi))" "
+                             (if (null?(getEtiquetados publi))
+                                 ""
+                                 (string-append "Etiquetados: "(etiquetadosAstringPubli(getEtiquetados publi))"\n")
+                                 )
+                             (formato(getConCompPublicacion publi))
+                             ;likes?
+                             ;likes
+                            )
+                            )
+  )
+;concatena varios string publicacion
+;publicacionesAString
+;dom List x list
+;rec string
+(define publicacionesAStringUser(lambda (formato ListaPublicacionesRS ListaIDPubli )
+                              (if (null? ListaIDPubli)
+                                  "\n"
+                                  (string-append
+                                   (publicacionAstring (buscarPublicacionID (car ListaIDPubli) ListaPublicacionesRS ) formato )
+                                   (publicacionesAStringUser formato ListaPublicacionesRS (cdr ListaIDPubli))
+                                   )
+                                  )
+
+                              )
+  )

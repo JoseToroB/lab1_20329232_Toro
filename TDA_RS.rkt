@@ -49,7 +49,7 @@
   (car (cdr (cdr (cdr (cdr RS)))))
   )
 ;(lista de publicaciones)
-(define (getPreguntas->RS RS)
+(define (getPublicaciones->RS RS)
   (car (cdr (cdr (cdr (cdr (cdr RS))))))
   )
 ; ID_UltimaRespuesta(entero)

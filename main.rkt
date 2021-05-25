@@ -59,7 +59,7 @@
            (getEncriptar RS)
            (getDesencript RS)
            (ID_UltimaPregunta->RS RS)
-           (getPreguntas->RS RS)
+           (getPublicaciones->RS RS)
            (ID_UltimaRespuesta->RS RS)
            (getRespuestas->RS RS)
            (unir (getUSUARIOS->RS RS) (seguridadUser(getEncriptar RS) (crearUser User pass (list) fecha (+(getCantUsers->RS RS) 1) (list) (list)) ));aqui encripto
@@ -88,15 +88,15 @@
            (getEncriptar RS)
            (getDesencript RS)
            (ID_UltimaPregunta->RS RS)
-           (getPreguntas->RS RS)
+           (getPublicaciones->RS RS)
            (ID_UltimaRespuesta->RS RS)
            (getRespuestas->RS RS)
            (getUSUARIOS->RS RS)
            User
            (getCantUsers->RS RS))
                  )
-        ;usuario no logeado
-        RS ;retorno la Rs
+        ;usuario no logeadoss
+        (function RS) ;retorno funcion rs
         )
     );cierre lambda
   );cierre define
@@ -106,9 +106,6 @@
 ;dom: socialnetwork
 ;rec function: date X string (contenido) X user list
 ;rec final: socialnetwork
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;ya que no se especifica que tipo de publicacion asumire que todas son tipo texto;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define (post RS)(lambda (fechaPublicacion)
                    (lambda (tipoPost contenido . users)
                      ;debo revisar si "etiqueto" gente
@@ -123,12 +120,12 @@
                           (+(ID_UltimaPregunta->RS RS)1)
                           ;actualizo la lista de preguntas agregando la publicacion
                           (unir
-                           (getPreguntas->RS RS);lista preguntas/publicaciones/posteos
+                           (getPublicaciones->RS RS);lista preguntas/publicaciones/posteos
                            ;debo encriptar la publicacion
                            (crearPublicacion;creo publicacion
                             (+(ID_UltimaPregunta->RS RS)1);asigno id
                            ( (getEncriptar RS) contenido) ;encripto el contenido
-                            tipoPost;asumo es texto ya que en ninguna parte del llamado se permite saber el dato
+                           ( (getEncriptar RS) tipoPost)
                             fechaPublicacion
                             (list);lista respuestas/comentarios
                             0;likes
@@ -185,7 +182,7 @@
                                           (getEncriptar RS)
                                           (getDesencript RS)
                                           (ID_UltimaPregunta->RS RS)
-                                          (getPreguntas->RS RS)
+                                          (getPublicaciones->RS RS)
                                           (ID_UltimaRespuesta->RS RS)
                                           (getRespuestas->RS RS)
                                           ;debo "modificar" al usuario online, para eso lo remuevo y lo agrego con sus nuevos valores
@@ -220,7 +217,7 @@
 ;(((login facebook “user” “pass” share) (date 30 10 2020)) 54)  ;la publicación con ID 54 se comparte en la cuenta de user
 (define (share RS)(lambda (fecha)(lambda (IDpubli . users)
                                    ;reviso que exista la publicacion con esa ID
-                                   (if (list?(buscarPublicacionID  IDpubli (getPreguntas->RS RS)))
+                                   (if (list?(buscarPublicacionID  IDpubli (getPublicaciones->RS RS)))
                                        ;si existe la pubicacion
                                        ;creo una RS con el usuario modificado (agrego la id, fecha , etiquetados dentro de su list  de compartidos)
                                        (construirRS;crear una RS identica con ciertas partes modificadas
@@ -229,7 +226,7 @@
                                           (getEncriptar RS)
                                           (getDesencript RS)
                                           (ID_UltimaPregunta->RS RS)
-                                          (getPreguntas->RS RS)
+                                          (getPublicaciones->RS RS)
                                           (ID_UltimaRespuesta->RS RS)
                                           (getRespuestas->RS RS)
                                           ;debo "modificar" al usuario online, para eso lo remuevo y lo agrego con sus nuevos valores
@@ -269,14 +266,30 @@
   ;hay dos casos, el caso donde existe alguien online y el caso donde no
   (if (equal? "" (getOnline->RS RS))
       ;caso ofline
-      #t
+      (casoUserOff RS (getDesencript RS))
       ;caso online
       (casoUserOnline RS  (getDesencript RS) (buscarUserPass ((getEncriptar RS)(getOnline->RS RS)) (getUSUARIOS->RS RS)))
-                     
+                   
       )
+  )
+(define casoUserOff(lambda (RS formato)
+                    ""
+                              
+                     )
   )
 (define casoUserOnline(lambda (RS formato user )
                         ;como el user esta online debo mostrar solo lo relacionado a el
-                        ""
+                        (string-append "Usuario Online: " (formato(getNick user))
+                         " fecha de registro: " (getFechaRegistro user) "\n"
+                         ;string con los contactos (solo nombres de usuarios
+                         ;crea un string con los conctactos del usuario
+                         "\nContactos\n"
+                         (ContactosAstring user formato (getUSUARIOS->RS RS) )
+                         "\n"
+                         ;string con las publicaciones
+                         ;transforma a string cada publicacion del usuario
+                         "\nPublicaciones\n"
+                         (publicacionesAStringUser (getDesencript RS) (getPublicaciones->RS RS) (getPublicaciones user)) 
+                                       ) 
+                         )            
                         )
-  )
