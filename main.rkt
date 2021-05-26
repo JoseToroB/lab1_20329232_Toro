@@ -413,7 +413,7 @@
 ;dom RS X DATE X ID post o comentario
 ;rec RS
 ;no dicen para que es la fecha en el pdf por ende no la utilice ya que un like es simplemente un numero
-;Se puede dar like a cualquier publicación
+;Se puede dar like a cualquier publicación/comentario
 (define (like RS) (lambda (fecha) (lambda (ID)
                                     ;reviso si la id esta en su lista de likes
                                     (if (estaEn? ID (getListaLikes (buscarUserPass ((getEncriptar RS)(getOnline->RS RS)) (getUSUARIOS->RS RS))) )
@@ -457,4 +457,51 @@
                                         )
                                     )
                     )
+  )
+;funcion extra
+;(CantVecesCompartida(numb), autorOriginal(string),tipo(string),fecha(string), contenido(string) TODO DESENCRIPTADO )
+(define formatoViral(lambda (lista formato)
+                      (list
+                       (getIDPublicacion lista)
+                       (getAutorPublicacion lista)
+                       (formato(getTipoDatPublicacion lista))
+                       (getFechaPublicacion lista)
+                       (formato(getConCompPublicacion lista))
+                       )
+                      )
+  )
+(define detectarVirales (lambda (lista likes formato)
+                          (if (null? lista)
+                              (list)
+                              ;si la publicacion cumple hago cons (car lista) (funcion cdr lista)
+                              (if (equal?(getLikesPublicacion(car lista)) likes)
+                                  ;si cumple lo agrego
+                                  (cons (formatoViral(car lista) formato) (detectarVirales (cdr lista) likes formato))
+                                   ;si no cumple paso al siguiente
+                                  (detectarVirales (cdr lista) likes formato)
+                                  )
+                              )
+                          
+                          )
+  )
+;viral 0.5pts
+;dom socialnetwork X number
+;rec list de post (idResp = 0)
+;(viral rs num)
+;Función que permite determinar contenido viral dentro de la red social, esto es, determinar publicaciones que hayan sido compartidas K veces.
+;es decir likes = k
+;La función debe retornar una lista de las publicaciones junto a datos como
+;número de veces que se ha compartido, autor original de la publicación, tipo de publicación, fecha de publicación.
+; entregare la lista de la forma
+;(CantVecesCompartida(numb), autorOriginal(string),tipo(string),fecha(string) )
+;( (publicacionViraL1) .....)
+(define viral(lambda (RS cantidadLikes)
+               ;si no hay publicaciones entonces es imposible encontrar una publicacion viral
+               (if (null? (getPublicaciones->RS RS))
+                   (list null);si no hay publicaciones la lista se retorna vacia 
+                   ;en caso de haber publicaciones
+                   ;debo revisar si son virales o no y entregarlos en una lista
+                   (detectarVirales (getPublicaciones->RS RS) cantidadLikes (getEncriptar RS))
+                   )
+               )
   )
