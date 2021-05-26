@@ -60,9 +60,9 @@
            (getDesencript RS)
            (ID_UltimaPregunta->RS RS)
            (getPublicaciones->RS RS)
-           0;(ID_UltimaRespuesta->RS RS)
-           (list);(getRespuestas->RS RS)
-           (unir (getUSUARIOS->RS RS) (seguridadUser(getEncriptar RS) (crearUser User pass (list) fecha (+(getCantUsers->RS RS) 1) (list) (list)) ));aqui encripto
+           0;(ID_UltimaRespuesta->RS RS) solo la id ya no la utilizo 
+           (list);(getRespuestas->RS RS) 
+           (unir (getUSUARIOS->RS RS) (seguridadUser(getEncriptar RS) (crearUser User pass (list) fecha (+(getCantUsers->RS RS) 1) (list) (list) (list) ) ));aqui encripto
            ""
            (+(getCantUsers->RS RS)1)
            )
@@ -132,8 +132,9 @@
                             (getOnline->RS RS);asigno el autor para lograr identificarlas mas facil
                             users;asigno sus "etiquetados"
                             0;compartidos
+                            0;como es una publicacion tipo publicacion es id0 , si fuese comentario seria idRespuesta
                             ))
-                          0;(ID_UltimaRespuesta->RS RS)
+                          0;(ID_UltimaRespuesta->RS RS) solo la id ya no se utiliza
                           (list);(getRespuestas->RS RS)
                           ;actualizo al usuario que publico
                           (unir
@@ -146,7 +147,8 @@
                                   (getFechaRegistro(buscarUserPass ((getEncriptar RS)(getOnline->RS RS)) (getUSUARIOS->RS RS)))
                                   (getIDUser(buscarUserPass ((getEncriptar RS)(getOnline->RS RS)) (getUSUARIOS->RS RS)))
                                   (getAmigos(buscarUserPass ((getEncriptar RS)(getOnline->RS RS)) (getUSUARIOS->RS RS)))
-                                  (getCompartidos(buscarUserPass ((getEncriptar RS)(getOnline->RS RS)) (getUSUARIOS->RS RS))))
+                                  (getCompartidos(buscarUserPass ((getEncriptar RS)(getOnline->RS RS)) (getUSUARIOS->RS RS)))
+                                  (getListaLikes(buscarUserPass ((getEncriptar RS)(getOnline->RS RS)) (getUSUARIOS->RS RS))))
                                    )
                            
                           "";desconecto el usuario
@@ -185,19 +187,23 @@
                                           (ID_UltimaPregunta->RS RS)
                                           (getPublicaciones->RS RS)
                                           0; el tda respuesta quedo eliminado a ultimo momento
-                                          (list);pero es muy tarde para eliminar todo su rastro dentro del tda RS por ende donde se utilizaba
+                                          (list);(getRespuestas->RS RS);pero su antigua lista para almacenar si lo utilizo
                                           ;solo dejare los datos iniciales 
                                           ;debo "modificar" al usuario online, para eso lo remuevo y lo agrego con sus nuevos valores
-                                          (unir (remover (getUSUARIOS->RS RS) (obtenerPosUser (getUSUARIOS->RS RS) ((getEncriptar RS)(getOnline->RS RS)) 0) );remuevo online
-                                                (crearUser;agrego la id de userAseguir en la lista de ids del user online
-                                              ((getEncriptar RS)(getOnline->RS RS))
-                                              (getPass (buscarUserPass ((getEncriptar RS)(getOnline->RS RS)) (getUSUARIOS->RS RS)))
-                                              (getPublicaciones (buscarUserPass ((getEncriptar RS)(getOnline->RS RS)) (getUSUARIOS->RS RS))) 
-                                              (getFechaRegistro(buscarUserPass ((getEncriptar RS)(getOnline->RS RS)) (getUSUARIOS->RS RS)))
-                                              (getIDUser(buscarUserPass ((getEncriptar RS)(getOnline->RS RS)) (getUSUARIOS->RS RS)))
+                                          (unir
+                                           (remover (getUSUARIOS->RS RS) (obtenerPosUser (getUSUARIOS->RS RS) ((getEncriptar RS)(getOnline->RS RS)) 0) );
+                                           (crearUser;agrego la id de userAseguir en la lista de ids del user online
+                                             ((getEncriptar RS)(getOnline->RS RS))
+                                             (getPass (buscarUserPass ((getEncriptar RS)(getOnline->RS RS)) (getUSUARIOS->RS RS)))
+                                             (getPublicaciones (buscarUserPass ((getEncriptar RS)(getOnline->RS RS)) (getUSUARIOS->RS RS))) 
+                                             (getFechaRegistro(buscarUserPass ((getEncriptar RS)(getOnline->RS RS)) (getUSUARIOS->RS RS)))
+                                             (getIDUser(buscarUserPass ((getEncriptar RS)(getOnline->RS RS)) (getUSUARIOS->RS RS)))
                                               ;ahora agrego la id del usuario a seguir a su lista de seguidos
-                                              (unir (getAmigos(buscarUserPass ((getEncriptar RS)(getOnline->RS RS)) (getUSUARIOS->RS RS))) (getIDUser (buscarUserPass ((getEncriptar RS)userAseguir) (getUSUARIOS->RS RS))))
-                                              (getCompartidos (buscarUserPass ((getEncriptar RS)(getOnline->RS RS)) (getUSUARIOS->RS RS)))
+                                             (unir
+                                              (getAmigos (buscarUserPass ((getEncriptar RS)(getOnline->RS RS)) (getUSUARIOS->RS RS)))
+                                              (getIDUser (buscarUserPass ((getEncriptar RS)userAseguir) (getUSUARIOS->RS RS))))
+                                             (getCompartidos (buscarUserPass ((getEncriptar RS)(getOnline->RS RS)) (getUSUARIOS->RS RS)))
+                                             (getListaLikes (buscarUserPass ((getEncriptar RS)(getOnline->RS RS)) (getUSUARIOS->RS RS)))
                                               )) 
                                         
                                           "";desconecto el usuario
@@ -241,6 +247,7 @@
                                             (getAutorPublicacion(buscarPublicacionID IDpubli (getPublicaciones->RS RS)))
                                             (getEtiquetados(buscarPublicacionID IDpubli (getPublicaciones->RS RS)))
                                             (+(getVecesCompartidas(buscarPublicacionID IDpubli (getPublicaciones->RS RS)))1);sumo el 1
+                                            (getIDResponder(buscarPublicacionID IDpubli (getPublicaciones->RS RS)))
                                             )
                                            )
                                                 
@@ -274,6 +281,7 @@
                                                             ))
                                                  )
                                                      )
+                                                 (getListaLikes (buscarUserPass ((getEncriptar RS)(getOnline->RS RS)) (getUSUARIOS->RS RS)))
                                                        
                                                  )) 
                                           "";desconecto el usuario
@@ -332,4 +340,115 @@
                                        ) 
                          )            
                         )
-;FUNCION EXTRA;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;FUNCIONES EXTRA;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;comment / 1pts
+;dom socialnetwork X date X number X string 
+;rec RS
+;como no se especifica que tipo de respuesta genera esta funcion, asumo que solo se puede comentar con tipo texto
+(define (comment RS)(lambda (fecha)(lambda (ID)(lambda (respuesta)
+                                                 (if (list?(buscarPublicacionID  ID (getPublicaciones->RS RS)))
+                                                     ;existe publicacion
+                                                     (construirRS;crear una RS identica con ciertas partes modificadas
+                                                      (getNombreRS RS)
+                                                      (getFechaRS RS)
+                                                      (getEncriptar RS)
+                                                      (getDesencript RS)
+                                                      (+(ID_UltimaPregunta->RS RS)1)
+                                                      ;debo hacer agregar la nueva id a su lista de respuestas
+                                                      (unir;agrego la publicacion tipo comentario (idResponder !=0 )
+                                                       (unir;remuevo la publi vieja y la modifico
+                                                       (remover (getPublicaciones->RS RS) (obtenerPosPubli (getPublicaciones->RS RS) ID 0))
+                                                       (crearPublicacion ; copio la publicacion y solo cambio el valor que necesito
+                                                        (getIDPublicacion (buscarPublicacionID ID (getPublicaciones->RS RS)))
+                                                        (getConCompPublicacion(buscarPublicacionID ID (getPublicaciones->RS RS)))
+                                                        (getTipoDatPublicacion(buscarPublicacionID ID (getPublicaciones->RS RS)))
+                                                        (getFechaPublicacion(buscarPublicacionID ID (getPublicaciones->RS RS)))
+                                                        (unir
+                                                         (getRespuestasPublicacion (buscarPublicacionID ID (getPublicaciones->RS RS)))
+                                                          (+(ID_UltimaPregunta->RS RS)1)
+                                                         )
+                                                        (getLikesPublicacion(buscarPublicacionID ID (getPublicaciones->RS RS)))
+                                                        (getAutorPublicacion(buscarPublicacionID ID (getPublicaciones->RS RS)))
+                                                        (getEtiquetados(buscarPublicacionID ID (getPublicaciones->RS RS)))
+                                                        (getVecesCompartidas(buscarPublicacionID ID (getPublicaciones->RS RS)))
+                                                        (getIDResponder(buscarPublicacionID ID (getPublicaciones->RS RS)))
+                                                        )
+                                                       )
+
+                                                       (crearPublicacion;aqui creo la nueva publicacion (tipo comentario => IDRESPONDER != 0
+                                                        (+(ID_UltimaPregunta->RS RS)1)
+                                                        ((getEncriptar RS)respuesta)
+                                                        ( (getEncriptar RS)"texto")
+                                                        fecha
+                                                        (list)
+                                                        0
+                                                        (getOnline->RS RS)
+                                                        (list);lista etiquetados
+                                                        0;cant compartidas
+                                                        ID;id a la que responde
+                                                        )
+                                                       
+                                                           )
+                                                
+                                                      0;(ID_UltimaRespuesta->RS RS)
+                                                      (list)
+                                                      ;al usuario no le agrego los comment a su lista de publicaciones ya que no es necesario debido a que cada
+                                                      ;publicacion almacena la id de sus propios comentarios
+                                                      (getUSUARIOS->RS RS) 
+                                                      "";desconecto el usuario
+                                                      (getCantUsers->RS RS))
+                                                     ;no existe publicacion
+                                                     RS
+                                                     )
+                                                 )
+                                     )
+                      )
+  )
+
+;funcion extra
+;like 0.5 pts
+;dom RS X DATE X ID post o comentario
+;rec RS
+;no dicen para que es la fecha en el pdf por ende no la utilice ya que un like es simplemente un numero
+;Se puede dar like a cualquier publicación
+(define (like RS) (lambda (fecha) (lambda (ID)
+                                    (if (list?(buscarPublicacionID  ID (getPublicaciones->RS RS)))
+                                        ;existe publicacion
+                                        (construirRS;crear una RS identica con ciertas partes modificadas
+                                                      (getNombreRS RS)
+                                                      (getFechaRS RS)
+                                                      (getEncriptar RS)
+                                                      (getDesencript RS)
+                                                      (ID_UltimaPregunta->RS RS)
+                                                      ;debo hacer likes+1
+                                                       (unir;remuevo la publi vieja y la modifico
+                                                       (remover (getPublicaciones->RS RS) (obtenerPosPubli (getPublicaciones->RS RS) ID 0))
+                                                       (crearPublicacion ; copio la publicacion y solo cambio el valor que necesito
+                                                        (getIDPublicacion (buscarPublicacionID ID (getPublicaciones->RS RS)))
+                                                        (getConCompPublicacion(buscarPublicacionID ID (getPublicaciones->RS RS)))
+                                                        (getTipoDatPublicacion(buscarPublicacionID ID (getPublicaciones->RS RS)))
+                                                        (getFechaPublicacion(buscarPublicacionID ID (getPublicaciones->RS RS)))
+                                                        (getRespuestasPublicacion (buscarPublicacionID ID (getPublicaciones->RS RS)))
+                                                        (+(getLikesPublicacion(buscarPublicacionID ID (getPublicaciones->RS RS)))1)
+                                                        (getAutorPublicacion(buscarPublicacionID ID (getPublicaciones->RS RS)))
+                                                        (getEtiquetados(buscarPublicacionID ID (getPublicaciones->RS RS)))
+                                                        (getVecesCompartidas(buscarPublicacionID ID (getPublicaciones->RS RS)))
+                                                        (getIDResponder(buscarPublicacionID ID (getPublicaciones->RS RS)))
+                                                        )
+                                                       )
+                                                      0;(ID_UltimaRespuesta->RS RS)
+                                                      (list)
+                                                      ;al usuario no le agrego los comment a su lista de publicaciones ya que no es necesario debido a que cada
+                                                      ;publicacion almacena la id de sus propios comentarios
+                                                      (getUSUARIOS->RS RS) 
+                                                      "";desconecto el usuario
+                                                      (getCantUsers->RS RS))
+                                        ;no existe publicacion
+                                        RS
+                                        )
+                                    )
+                    )
+  )

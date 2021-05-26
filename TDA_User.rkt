@@ -4,14 +4,14 @@
 ;
 ;TDA USUARIO
 ;el TDA usuario tiene los siguientes elementos
-;(nickname(string) password(string) publicaciones(LISTA DE  IDS/ENTEROS) fechaRegistro(string) IDUser(number) listaAmigos(ids) compartidos(lista publicaciones compartidas (ID FECHA ETIQUETADOS))
+;(nickname(string) password(string) publicaciones(LISTA DE  IDS/ENTEROS) fechaRegistro(string) IDUser(number) listaAmigos(ids) compartidos(lista publicaciones compartidas(ID FECHA ETIQUETADOS)) lista de ids de publicaciones likeadas
 
 ;;Funcion crearUser
 ;DOM ;string X string 
 ;REC ;TDA usuario
-(define (crearUser User pass publicaciones fecha ID listaAmigos compartidos)
+(define (crearUser User pass publicaciones fecha ID listaAmigos compartidos PublicacionesLike)
   (if (and (string? User) (string? pass) (list? publicaciones) (string? fecha) (number? ID)(list? listaAmigos) (list? compartidos)  )
-      (list User pass publicaciones fecha ID listaAmigos compartidos)
+      (list User pass publicaciones fecha ID listaAmigos compartidos PublicacionesLike)
       #f
       )
   )
@@ -74,6 +74,11 @@
                             (car(cddddr (cddr lista)))
                     )
   )
+
+(define getListaLikes(lambda (lista)
+                            (car (cddddr (cddr (cdr lista))))
+                    )
+  )
 ;;;;;;;;; funciones extra ;;;;;;;
 
 ;busco un user dentro de una lista users
@@ -99,6 +104,7 @@
                          (getIDUser user)
                          (getAmigos user)
                          (getCompartidos user)
+                         (getListaLikes user)
                          )         
                         )
   )
