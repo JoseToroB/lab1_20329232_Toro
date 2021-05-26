@@ -2,16 +2,21 @@
 ;
 (provide (all-defined-out))
 ;
-
+;debido a un cambio de ultimo momento el tda respuestas se fusiona con el tda publicacion
+;ya que por la forma en que se realiza el llamado de comment no hay manera de distinguir comentario de publicacion
+;((((login facebook “user” “pass” comment) (date 30 10 2020))54) “Mi respuesta”) ;comentario sobre publicación 54
+;((((login facebook “user” “pass” comment) (date 30 10 2020))58) “Mi respuesta”) ;comentario sobre comentario 58
+;ya que entra la misma cantidad de datos en esta funcion opte por esto
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;aqui empieza el TDA Publicacion
-;id(int) , contenidoCompartido(string) ,tipoDato(string), fecha (string), lista de ids(de respuestas), reacciones("likes" int),Publicador(nick string), etiquetados(strings)
+;id(int) , contenidoCompartido(string) ,tipoDato(string), fecha (string), lista de ids(de respuestas), reacciones("likes" int),Publicador(nick string), etiquetados(list strings), vecesCompartidas(numb)
 ;constructor
 ;entran varios datos
 ;sale una lista del tipo del TDA si esque los datos son validos
-(define crearPublicacion(lambda(id contenidoCompartido tipoDato fecha ListaRespuestas likes autor etiquetados)
+;ahora la lista de respuestas apunta a otros tda publicaciones que tienen 
+(define crearPublicacion(lambda(id contenidoCompartido tipoDato fecha ListaRespuestas likes autor etiquetados vecesCompartidas)
                           (if (esPublicacion id contenidoCompartido tipoDato fecha ListaRespuestas likes autor)
-                              (list id contenidoCompartido tipoDato fecha ListaRespuestas likes autor etiquetados)
+                              (list id contenidoCompartido tipoDato fecha ListaRespuestas likes autor etiquetados vecesCompartidas)
                               #f
                               )
                           ))
@@ -60,6 +65,14 @@
                           (car(cdr(cdr(cdr(cdr(cdr(cdr (cdr publicacion))))))))
                           )
   )
+(define getVecesCompartidas(lambda (publicacion)
+                          (car(cdr(cdr(cdr(cdr(cdr(cdr (cdr (cdr publicacion)))))))))
+                          )
+  )
+(define getIDResponder(lambda (publicacion)
+                          (car(cdr(cdr(cdr(cdr(cdr(cdr (cdr (cdr (cdr publicacion))))))))))
+                          )
+  )
 ;FUNCIONES EXTRA
 ;busco una publicacion en la lista de publicaciones 
 ;dom: numb(id) x lista
@@ -72,6 +85,16 @@
            (buscarPublicacionID  ID (cdr lista))
            )
        )
+  )
+;busca la posicion de una publica (mediante id) dentro de una lista publicaciones
+;dom: lista x entero x entero
+;rec: entero
+(define obtenerPosPubli(lambda (lista id pos)
+                   (if (equal? (getIDPublicacion (car lista)) id)
+                       pos
+                       (obtenerPosPubli (cdr lista) id (+ pos 1))
+                       )
+                    )
   )
 (define etiquetadosAstringPubli(lambda (et)
                                  (if (null? et)
@@ -91,6 +114,7 @@
                              "Autor: "(getAutorPublicacion publi)" "
                              "Fecha Publicacion: "(getFechaPublicacion publi)"\n"
                              "Tipo de Publicacion: " (formato(getTipoDatPublicacion publi))" "
+                             "\nEsta publicacion fue compartida un total de: "(number->string(getVecesCompartidas publi)) " veces\n"
                              (if (null?(getEtiquetados publi))
                                  ""
                                  (string-append "Etiquetados: "(etiquetadosAstringPubli(getEtiquetados publi))"\n")
@@ -166,4 +190,17 @@
                                        )
                                        )
                                   )
+  )
+;esta funcion revisa si una publicacion ya fue compartida por un user
+(define Compartida?(lambda(IDpubli listaCompartidas)
+                     (if(null? listaCompartidas)
+                        ;si la lista esta vacia, retorno f
+                        #f
+                        ;si no esta vacia reviso si la publicacion actual es la que quiero compartir
+                        (if (equal? IDpubli (car(car listaCompartidas)))
+                            #t
+                            (Compartida? IDpubli (cdr listaCompartidas))
+                        )
+                     )
+                     )
   )

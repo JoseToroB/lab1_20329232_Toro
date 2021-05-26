@@ -60,8 +60,8 @@
            (getDesencript RS)
            (ID_UltimaPregunta->RS RS)
            (getPublicaciones->RS RS)
-           (ID_UltimaRespuesta->RS RS)
-           (getRespuestas->RS RS)
+           0;(ID_UltimaRespuesta->RS RS)
+           (list);(getRespuestas->RS RS)
            (unir (getUSUARIOS->RS RS) (seguridadUser(getEncriptar RS) (crearUser User pass (list) fecha (+(getCantUsers->RS RS) 1) (list) (list)) ));aqui encripto
            ""
            (+(getCantUsers->RS RS)1)
@@ -89,8 +89,8 @@
            (getDesencript RS)
            (ID_UltimaPregunta->RS RS)
            (getPublicaciones->RS RS)
-           (ID_UltimaRespuesta->RS RS)
-           (getRespuestas->RS RS)
+           0;(ID_UltimaRespuesta->RS RS)
+           (list);(getRespuestas->RS RS)
            (getUSUARIOS->RS RS)
            User
            (getCantUsers->RS RS))
@@ -131,9 +131,10 @@
                             0;likes
                             (getOnline->RS RS);asigno el autor para lograr identificarlas mas facil
                             users;asigno sus "etiquetados"
+                            0;compartidos
                             ))
-                          (ID_UltimaRespuesta->RS RS)
-                          (getRespuestas->RS RS)
+                          0;(ID_UltimaRespuesta->RS RS)
+                          (list);(getRespuestas->RS RS)
                           ;actualizo al usuario que publico
                           (unir
                            (remover (getUSUARIOS->RS RS) (obtenerPosUser (getUSUARIOS->RS RS) ((getEncriptar RS)(getOnline->RS RS)) 0) );elimino al usuario
@@ -183,8 +184,9 @@
                                           (getDesencript RS)
                                           (ID_UltimaPregunta->RS RS)
                                           (getPublicaciones->RS RS)
-                                          (ID_UltimaRespuesta->RS RS)
-                                          (getRespuestas->RS RS)
+                                          0; el tda respuesta quedo eliminado a ultimo momento
+                                          (list);pero es muy tarde para eliminar todo su rastro dentro del tda RS por ende donde se utilizaba
+                                          ;solo dejare los datos iniciales 
                                           ;debo "modificar" al usuario online, para eso lo remuevo y lo agrego con sus nuevos valores
                                           (unir (remover (getUSUARIOS->RS RS) (obtenerPosUser (getUSUARIOS->RS RS) ((getEncriptar RS)(getOnline->RS RS)) 0) );remuevo online
                                                 (crearUser;agrego la id de userAseguir en la lista de ids del user online
@@ -226,9 +228,24 @@
                                           (getEncriptar RS)
                                           (getDesencript RS)
                                           (ID_UltimaPregunta->RS RS)
-                                          (getPublicaciones->RS RS)
-                                          (ID_UltimaRespuesta->RS RS)
-                                          (getRespuestas->RS RS)
+                                          ;debo hacer getVecesCompartidas +1 en la publicacion
+                                          (unir;remuevo la publi vieja
+                                           (remover (getPublicaciones->RS RS) (obtenerPosPubli (getPublicaciones->RS RS) IDpubli 0))
+                                           (crearPublicacion ; copio la publicacion y solo cambio el valor que necesito
+                                            (getIDPublicacion (buscarPublicacionID IDpubli (getPublicaciones->RS RS)))
+                                            (getConCompPublicacion(buscarPublicacionID IDpubli (getPublicaciones->RS RS)))
+                                            (getTipoDatPublicacion(buscarPublicacionID IDpubli (getPublicaciones->RS RS)))
+                                            (getFechaPublicacion(buscarPublicacionID IDpubli (getPublicaciones->RS RS)))
+                                            (getRespuestasPublicacion(buscarPublicacionID IDpubli (getPublicaciones->RS RS)))
+                                            (getLikesPublicacion(buscarPublicacionID IDpubli (getPublicaciones->RS RS)))
+                                            (getAutorPublicacion(buscarPublicacionID IDpubli (getPublicaciones->RS RS)))
+                                            (getEtiquetados(buscarPublicacionID IDpubli (getPublicaciones->RS RS)))
+                                            (+(getVecesCompartidas(buscarPublicacionID IDpubli (getPublicaciones->RS RS)))1);sumo el 1
+                                            )
+                                           )
+                                                
+                                          0;(ID_UltimaRespuesta->RS RS)
+                                          (list);(getRespuestas->RS RS)
                                           ;debo "modificar" al usuario online, para eso lo remuevo y lo agrego con sus nuevos valores
                                           (unir (remover (getUSUARIOS->RS RS) (obtenerPosUser (getUSUARIOS->RS RS) ((getEncriptar RS)(getOnline->RS RS)) 0) );remuevo online
                                                 (crearUser;agrego la id de userAseguir en la lista de ids del user online
@@ -239,7 +256,12 @@
                                                  (getIDUser(buscarUserPass ((getEncriptar RS)(getOnline->RS RS)) (getUSUARIOS->RS RS)))
                                                  ;ahora agrego la id del usuario a seguir a su lista de seguidos
                                                  (getAmigos(buscarUserPass ((getEncriptar RS)(getOnline->RS RS)) (getUSUARIOS->RS RS)))
-                                                 (unir (getCompartidos (buscarUserPass ((getEncriptar RS)(getOnline->RS RS)) (getUSUARIOS->RS RS)))
+                                                 ;reviso si la compartio antes o no
+                                                 (if (Compartida? IDpubli (getCompartidos (buscarUserPass ((getEncriptar RS)(getOnline->RS RS)) (getUSUARIOS->RS RS))))
+                                                     ;si la ha compartido no agrego nada
+                                                     (getCompartidos (buscarUserPass ((getEncriptar RS)(getOnline->RS RS)) (getUSUARIOS->RS RS)))
+                                                     ;si no la ha compartido la agrego
+                                                     (unir (getCompartidos (buscarUserPass ((getEncriptar RS)(getOnline->RS RS)) (getUSUARIOS->RS RS)))
                                                        (list
                                                         IDpubli
                                                         fecha
@@ -250,7 +272,10 @@
                                                             ;si no son amigos lo dejo como ""
                                                             ""
                                                             ))
-                                                 ))) 
+                                                 )
+                                                     )
+                                                       
+                                                 )) 
                                           "";desconecto el usuario
                                           (getCantUsers->RS RS))
                                        ;si no existe retorno la RS
@@ -276,6 +301,7 @@
                    
       )
   )
+;esta funcion realiza el llamado en caso de que ->string  reciba una RS sin sesion inciada
 (define casoUserOff(lambda (RS formato)
                      (string-append
                      "la Red Social "(getNombreRS RS) " fue creada el " (getFechaRS RS)"\n"
@@ -285,8 +311,9 @@
                      "todas las publicaciones son\n"
                      (PublicacionesAstringOFF (getDesencript RS) (getPublicaciones->RS RS) )
                      )  
-                     )
+                     ) 
   )
+;esta funcion realiza el llamado cuando ->string recibe una RS con sesion activa
 (define casoUserOnline(lambda (RS formato user )
                         ;como el user esta online debo mostrar solo lo relacionado a el
                         (string-append
@@ -305,3 +332,4 @@
                                        ) 
                          )            
                         )
+;FUNCION EXTRA;
