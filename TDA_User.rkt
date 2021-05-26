@@ -113,6 +113,17 @@
                        )
                     )
   )
+;obtener user x su id
+(define (buscarUserID id lista)
+   (if (null? lista)
+       #f
+       (if (equal? (getIDUser(car lista)) id)
+           (car lista)
+           (buscarUserID id (cdr lista))
+           )
+       )
+  )
+
 ;revisa si un id esta en una lista
 ;dom ID(entero) X lista
 ;rec bool
@@ -138,11 +149,20 @@
                    )
   )
 (define contactoAstring(lambda (contacto formato)
-                         " "
+                         (string-append
+                          (formato(getNick contacto))" "
+                          )
                          )
   )
 
-(define ContactosAstring (lambda (user formato listaUsers )
-                           " "
+(define ContactosAstring (lambda (amigosUser formato listaUsers )
+                           (if (null? amigosUser)
+                               "\n"
+                               (string-append
+                                (contactoAstring (buscarUserID (car amigosUser) listaUsers) formato)
+                                (ContactosAstring (cdr amigosUser) formato listaUsers)
+                                )
+                               )
                            )
   )
+  

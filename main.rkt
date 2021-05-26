@@ -259,6 +259,10 @@
                                    )
                     )
   )
+
+;como no dijieron que formato usar
+;cuando el usuario esta online muestro un poco de sus datos luego sus contactos, sus publicaciones y por ultimo las publicaciones compartidas
+;cuando no hay userOnline muestro un pequeño resumende la RS seguido de todas las publicaciones 
 ;RS->STRING
 ;Dom socialnetwork
 ;Rec string
@@ -273,23 +277,31 @@
       )
   )
 (define casoUserOff(lambda (RS formato)
-                    ""
-                              
+                     (string-append
+                     "la Red Social "(getNombreRS RS) " fue creada el " (getFechaRS RS)"\n"
+                     "actualmente cuenta con un total de "(number->string(getCantUsers->RS RS))" usuario/s\n"
+                     "entre ellos han realizado un total de "(number->string(ID_UltimaPregunta->RS RS)) " publicacion/es\n"
+                     ;como no hay formato definido simplemente mostrare todas las publicaciones en orden de su ID
+                     "todas las publicaciones son\n"
+                     (PublicacionesAstringOFF (getDesencript RS) (getPublicaciones->RS RS) )
+                     )  
                      )
   )
 (define casoUserOnline(lambda (RS formato user )
                         ;como el user esta online debo mostrar solo lo relacionado a el
-                        (string-append "Usuario Online: " (formato(getNick user))
-                         " fecha de registro: " (getFechaRegistro user) "\n"
+                        (string-append
+                         "Usuario Online: " (formato(getNick user))
+                         " Fecha de registro: " (getFechaRegistro user) "\n"
                          ;string con los contactos (solo nombres de usuarios
-                         ;crea un string con los conctactos del usuario
+                         ;crea un string con los conctactos del usuario  
                          "\nContactos\n"
-                         (ContactosAstring user formato (getUSUARIOS->RS RS) )
-                         "\n"
+                         (ContactosAstring (getAmigos user) formato (getUSUARIOS->RS RS) )
                          ;string con las publicaciones
                          ;transforma a string cada publicacion del usuario
                          "\nPublicaciones\n"
-                         (publicacionesAStringUser (getDesencript RS) (getPublicaciones->RS RS) (getPublicaciones user)) 
+                         (publicacionesAStringUser (getDesencript RS) (getPublicaciones->RS RS) (getPublicaciones user))
+                         "\nPublicaciones Compartidas\n"
+                         (publiCompAstringUser (getDesencript RS) (getPublicaciones->RS RS) (getCompartidos user) )
                                        ) 
                          )            
                         )

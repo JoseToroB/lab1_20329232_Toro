@@ -82,7 +82,7 @@
   )
 ;transoforma una publicacion a un string
 ;publicacionAstring
-;dom list
+;dom list x func
 ;rec string
 ;(list id contenidoCompartido tipoDato fecha ListaRespuestas likes autor etiquetados)
 (define publicacionAstring(lambda(publi formato)
@@ -103,7 +103,7 @@
   )
 ;concatena varios string publicacion
 ;publicacionesAString
-;dom List x list
+;dom List x list x func
 ;rec string
 (define publicacionesAStringUser(lambda (formato ListaPublicacionesRS ListaIDPubli )
                               (if (null? ListaIDPubli)
@@ -115,4 +115,55 @@
                                   )
 
                               )
+  )
+;convierte una publicacion en un tipo de publicacion compartida(string)
+;dom list x string x list x func
+;rec string
+(define publicacionCompartidaAstring(lambda (publi fecha et formato)
+                                      (string-append
+                                       "Publicacion Compartida el: "fecha " etiquetados "(etiquetadosAstringPubli et) "\n"
+                                       "ID: "(number->string(getIDPublicacion publi))" "
+                                       "Autor original: "(getAutorPublicacion publi)" "
+                                       "Fecha Publicacion original: "(getFechaPublicacion publi)"\n"
+                                       "Tipo de Publicacion: " (formato(getTipoDatPublicacion publi))" "
+                                       (if (null?(getEtiquetados publi))
+                                           ""
+                                           (string-append "Etiquetados publicacion original: "(etiquetadosAstringPubli(getEtiquetados publi))"\n")
+                                           )
+                                       (formato(getConCompPublicacion publi))
+                                       )
+                                       
+                                      )
+  )
+;concate varios string publicacion
+;(publiCompAstringUser (getDesencript RS) (getPublicaciones->RS RS) (getCompartidos user) )
+;dom func x list x list
+;rec string
+(define publiCompAstringUser (lambda (formato listaPublicacionesRS listaIDSCompartidas)
+                               (if (null? listaIDSCompartidas)
+                                   "\n"
+                                   (string-append
+                                   (publicacionCompartidaAstring
+                                    (buscarPublicacionID (car(car listaIDSCompartidas)) listaPublicacionesRS)
+                                    (cadr(car listaIDSCompartidas))
+                                    (caddr(car listaIDSCompartidas))
+                                    formato
+                                    )
+                                   (publiCompAstringUser formato listaPublicacionesRS (cdr listaIDSCompartidas))
+                                   )
+                               )
+                               )
+  )
+;esta funcion simplemente sirve en el caso de que no exista USERONLINE  y se llame a la funcion ->string
+;dom fun x list
+;rec strin
+(define PublicacionesAstringOFF (lambda ( formato lista )
+                                  (if (null? lista)
+                                      "\n"
+                                      (string-append
+                                       (publicacionAstring (car lista) formato)
+                                       (PublicacionesAstringOFF formato (cdr lista))
+                                       )
+                                       )
+                                  )
   )
