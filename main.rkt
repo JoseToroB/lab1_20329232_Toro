@@ -319,7 +319,7 @@
                      "todas las publicaciones son\n"
                      (PublicacionesAstringOFF (getDesencript RS) (getPublicaciones->RS RS) )
                      )  
-                     ) 
+                     )   
   )
 ;esta funcion realiza el llamado cuando ->string recibe una RS con sesion activa
 (define casoUserOnline(lambda (RS formato user )
@@ -415,8 +415,13 @@
 ;no dicen para que es la fecha en el pdf por ende no la utilice ya que un like es simplemente un numero
 ;Se puede dar like a cualquier publicación
 (define (like RS) (lambda (fecha) (lambda (ID)
-                                    (if (list?(buscarPublicacionID  ID (getPublicaciones->RS RS)))
-                                        ;existe publicacion
+                                    ;reviso si la id esta en su lista de likes
+                                    (if (estaEn? ID (getListaLikes (buscarUserPass ((getEncriptar RS)(getOnline->RS RS)) (getUSUARIOS->RS RS))) )
+                                        ;si esta retorno RS
+                                        RS
+                                        ;si no esta reviso que la publicacion/comentario exista
+                                        (if (list?(buscarPublicacionID  ID (getPublicaciones->RS RS)))
+                                        ;existe publicacion/comentario
                                         (construirRS;crear una RS identica con ciertas partes modificadas
                                                       (getNombreRS RS)
                                                       (getFechaRS RS)
@@ -424,9 +429,9 @@
                                                       (getDesencript RS)
                                                       (ID_UltimaPregunta->RS RS)
                                                       ;debo hacer likes+1
-                                                       (unir;remuevo la publi vieja y la modifico
+                                                       (unir;remuevo la publi/comentario y la modifico
                                                        (remover (getPublicaciones->RS RS) (obtenerPosPubli (getPublicaciones->RS RS) ID 0))
-                                                       (crearPublicacion ; copio la publicacion y solo cambio el valor que necesito
+                                                       (crearPublicacion ; copio la publi/comentario y solo cambio el valor que necesito
                                                         (getIDPublicacion (buscarPublicacionID ID (getPublicaciones->RS RS)))
                                                         (getConCompPublicacion(buscarPublicacionID ID (getPublicaciones->RS RS)))
                                                         (getTipoDatPublicacion(buscarPublicacionID ID (getPublicaciones->RS RS)))
@@ -448,6 +453,7 @@
                                                       (getCantUsers->RS RS))
                                         ;no existe publicacion
                                         RS
+                                        )
                                         )
                                     )
                     )

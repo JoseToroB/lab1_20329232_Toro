@@ -137,6 +137,7 @@
                              "Fecha Publicacion: "(getFechaPublicacion publi)"\n"
                              "Tipo de Publicacion: " (formato(getTipoDatPublicacion publi))" "
                              "\nEsta publicacion fue compartida un total de: "(number->string(getVecesCompartidas publi)) " veces\n"
+                             "likes: "(number->string (getLikesPublicacion publi))"\n"
                              (if (null?(getEtiquetados publi))
                                  ""
                                  (string-append "Etiquetados: "(etiquetadosAstringPubli(getEtiquetados publi))"\n")
@@ -145,10 +146,10 @@
                              (if (null? (getRespuestasPublicacion publi))
                                  ;en caso de tener respuestas las entregara
                                  ""
-                                 (string-append "\nRespuestas" (respuestasAstring listaPublicaciones formato (getRespuestasPublicacion publi)))
+                                 (string-append "\n\nRespuestas" (respuestasAstring listaPublicaciones formato (getRespuestasPublicacion publi)))
                                  )
                              ;likes?
-                            "likes: "(number->string (getLikesPublicacion ))"\n"
+                            
                             )
                             )
   )
@@ -212,7 +213,7 @@
                                   (if (null? lista)
                                       "\n"
                                       (string-append
-                                       (publicacionAstring (car lista) formato)
+                                       (publicacionAstring lista (car lista) formato)
                                        (PublicacionesAstringOFF formato (cdr lista))
                                        )
                                        )

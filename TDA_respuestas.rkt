@@ -2,6 +2,7 @@
 ;
 (provide (all-defined-out))
 ;
+;este TDA QUEDO OBSOLETO POR UN CAMBIO DE ULTIMO MOMENTO, SIN EMBARGO, ES MAS TARDADO ELIMINARLO POR COMPLETO QUE COMENTARLO
 ;TDA RESPUESTAS
 ;(define RespuestaStandar (list ID(number) autor(string) respuesta(string)  formatoResp(string) likes(number) fecha(string))
 
